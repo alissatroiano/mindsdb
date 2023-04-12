@@ -30,29 +30,50 @@ class CoinglassHandler(APIHandler):
         Register coinglass data table(s) here (example, 'coins');
         """
         self._tables[table_name] = table_class
-        
+
 
     def connect(self):
-        """
-        Sends a GET request to the Coinglass API to get the list of coins and their data.
-        """
-        if self.is_connected is True and self.client:
-            return self.client
+        return super().connect()
+
+    # def connect(url: str = None, headers: str = None, response: str = None):
+    #     """
+    #     Connects to Coinglass using an API Key
+    #     param url: url provided by Coinglass
+    #     param headers: headers provided by Coinglass
+    #     param response: response provided by Coinglass
+    #     return: Server response
+    #     """
+    #     if self.is_connected is True and self.client:
+    #         return self.client
         
-        if self.api_key:
-            self.client = self.api_key
-            self.is_connected = True
-            return self.client
+    #     if self.api_key:
+    #         self.client = self.api_key
+    #         self.is_connected = True
+    #         return self.client
             
-        else:
-            self.is_connected = False
-            return self.client
+    #     else:
+    #         self.is_connected = False
+    #         return self.client
 
 
     def check_connection(self) -> StatusResponse:
         """
         Checks if the connection to the Coinglass API is working.
         """
+        response = StatusResponse(False)
+
+        try:
+            api_key = self.connect()
+
+            # raise error if authentication fails
+            api_key.get_user(id=1)
+            response.success = True
+
+        except Exception as e:
+            response.message = f'Error connecting to Coinglass: {e}'
+            print(response.message)
+        
+
         if self.is_connected is False:
             return StatusResponse(status=False, message='Not connected to Coinglass')
 
