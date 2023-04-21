@@ -1,13 +1,17 @@
 import pandas as pd
 from typing import Dict
 import os
+
 from mindsdb.integrations.libs.api_handler import APIHandler
+# from mindsdb.integrations.handlers.coinglass_handler.coinglass_tables import CoinglassDataTable
 from mindsdb.integrations.libs.response import (
     HandlerStatusResponse as StatusResponse,
-    HandlerResponse as Response,
-)
+    HandlerResponse as Response
+    )
 api_key = os.environ.get("API_KEY") 
+# print(api_key)
 
+BASE_COINGLASS_URL = 'https://open-api.coinglass.com/'
 
 class CoinglassHandler(APIHandler):
     """
@@ -16,24 +20,62 @@ class CoinglassHandler(APIHandler):
     Attributes:
     client ()
     """
-    def __init__(self, name: str):
-        super().__init__(name)
-        """ constructor
-        Args:
-            name(str): the handler's name
-        """
-        self._tables = {}
+    def __init__(self, name: str = None, **kwargs):
+            """
+            Register API tables and prepare handler for an API connection
+            """
+            super().__init__(name)
+            self.api_key = None
 
+            args = kwargs.get('connection_args', {})
+            if 'api_key' in args:
+                self.api_key = args['api_key']
 
-    def register_table(self, table_name: str, table_class: Any):
-        """
-        Register coinglass data table(s) here (example, 'coins');
-        """
-        self._tables[table_name] = table_class
+            self.client = None
+            self.is_connected = False
+
+            coinglass_coin_data = CoinglassDataTable(self)
+            self.register_table('coinglass_coin_data', coinglass_coin_data)
 
 
     def connect(self):
-        return super().connect()
+        """
+        Creates a new Coinglass client if needed and sets Coinglass as the client to use for requests.
+
+        Returns newly created or existing Coinglass client
+        """
+        if self.is_connected is True and self.client:
+            return self.client
+        
+        if self.api_key:
+            self.client = api_key, BASE_COINGLASS_URL
+            self.is_connected = True
+            return self.client
+        else:
+             self.client = BASE_COINGLASS_URL
+
+        self.is_connected = True
+        return self.client
+    
+
+    def check_connection(self) -> StatusResponse:
+        """
+        Checks the connection to Coinglass API by sending a ping request to the API.
+        Returns a StatusResponse object indicating the success of the connection from mindsdb to the Coinglass Handler.
+        """
+         
+        response = StatusResponse(False)
+         
+        try:
+            client = self.connect()
+            client.ping()
+            response.success = True
+
+        except Exception as e:
+            response.message = str(e)
+            response.success = False
+        
+        return response
 
     # def connect(url: str = None, headers: str = None, response: str = None):
     #     """
@@ -56,29 +98,29 @@ class CoinglassHandler(APIHandler):
     #         return self.client
 
 
-    def check_connection(self) -> StatusResponse:
-        """
-        Checks if the connection to the Coinglass API is working.
-        """
-        response = StatusResponse(False)
+    # def check_connection(self) -> StatusResponse:
+    #     """
+    #     Checks if the connection to the Coinglass API is working.
+    #     """
+    #     response = StatusResponse(False)
 
-        try:
-            api_key = self.connect()
+    #     try:
+    #         api_key = self.connect()
 
-            # raise error if authentication fails
-            api_key.get_user(id=1)
-            response.success = True
+    #         # raise error if authentication fails
+    #         api_key.get_user(id=1)
+    #         response.success = True
 
-        except Exception as e:
-            response.message = f'Error connecting to Coinglass: {e}'
-            print(response.message)
+    #     except Exception as e:
+    #         response.message = f'Error connecting to Coinglass: {e}'
+    #         print(response.message)
         
 
-        if self.is_connected is False:
-            return StatusResponse(status=False, message='Not connected to Coinglass')
+    #     if self.is_connected is False:
+    #         return StatusResponse(status=False, message='Not connected to Coinglass')
 
-        else:
-            return StatusResponse(status=True, message='Connected to Coinglass')
+    #     else:
+    #         return StatusResponse(status=True, message='Connected to Coinglass')
 
 
     # def get_future_coins_market(url, headers, response, print):
