@@ -18,3 +18,4 @@ class CoinglassDataTable(APIHandler):
     # Default 1m intervals in aggregate data
     DEFAULT_AGGREGATE_INTERVAL = '1m'
     DEFAULT_AGGREGATE_TARDE_LIMIT = 1000
+    

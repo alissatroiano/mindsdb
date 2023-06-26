@@ -12,7 +12,7 @@ api_key = os.environ.get("API_KEY")
 # print(api_key)
 
 BASE_COINGLASS_URL = 'https://open-api.coinglass.com/'
-
+# print(BASE_COINGLASS_URL)
 class CoinglassHandler(APIHandler):
     """
     A class for handling connections and calls to the Coinglass API
@@ -34,9 +34,7 @@ class CoinglassHandler(APIHandler):
             self.client = None
             self.is_connected = False
 
-            coinglass_coin_data = CoinglassDataTable(self)
-            self.register_table('coinglass_coin_data', coinglass_coin_data)
-
+            return 
 
     def connect(self):
         """
