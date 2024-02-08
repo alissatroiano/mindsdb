@@ -15,7 +15,7 @@ fb_access_url = os.getenv('fb_access_url')
 
 def getCreds():
     creds = dict()
-    creds['access_token'] = access_token
+    creds['access_token'] = os.getenv('fb_access_token')
     creds['client_id'] = client_id
     creds['client_secret'] = client_secret
     creds['graph_domain'] = 'https://graph.facebook.com/'
@@ -25,13 +25,13 @@ def getCreds():
 
     return creds
 
-def make_api_call( url, endpoint_base, debug = 'no' ) :
-    data = requests.get( url, endpoint_base )
+def make_api_call( url, endpoint_params, debug = 'no' ) :
+    data = requests.get( url, endpoint_params )
 
     response = dict()
     response['url'] = url
-    response['endpoint_base'] = endpoint_base
-    response['endpoint_base_pretty'] = json.dumps(endpoint_base, indent=4)
+    response['endpoint_params'] = endpoint_params
+    response['endpoint_params_pretty'] = json.dumps(endpoint_params, indent=4)
     response['json_data'] = json.loads(data.content)
     response['json_data_pretty'] = json.dumps( response ['json_data'], indent = 4 )
 
@@ -44,6 +44,6 @@ def display_api_call(response):
     print("\nURL: ")
     print(response['url'])
     print("\nEndpoint Params: ")
-    print(response['endpoint_base_pretty'])
+    print(response['endpoint_params_pretty'])
     print("\nResponse: ")
     print(response['json_data_pretty'])
