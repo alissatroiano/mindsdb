@@ -14,22 +14,6 @@ access_url = os.getenv('fb_access_url')
 
 graph_url = 'https://graph.facebook.com/v19.0/me/accounts'
 
-def debug_access_token(params):
-    endpoint_params = dict()
-    endpoint_params['input_token'] = params['access_token']
-    endpoint_params['access_token'] = params['access_token']
-    url = params['graph_domain'] + '/debug_token'
-
-    return make_api_call( url, endpoint_params, params['debug'] )
-
-params = getCreds()
-params['debug'] = 'yes'
-response = debug_access_token(params)
-
-print("\nExpires at: ")
-print (datetime.datetime.fromtimestamp( response['json_data']['data']['data_access_expires_at'] ))
-
-
 def get_long_lived_access_token(params):
     endpoint_params = {
         'grant_type': 'fb_exchange_token',
